@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "911514525996",
+    "project_id": "cazino-f0f69",
+    "storage_bucket": "cazino-f0f69.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:911514525996:android:b48a963778909c7cd3cc89",
+        "android_client_info": {
+          "package_name": "com.example.regamba"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCTT_GYhQQ2R4xnB2XtUtqEZPJ66IS3vFU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
