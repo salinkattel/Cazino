@@ -1,9 +1,13 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_fortune_wheel/flutter_fortune_wheel.dart';
 import 'package:regamba/results.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:regamba/game.dart';
+import 'package:path/path.dart' as p;
+import 'package:sqflite/sqflite.dart';
+
 
 class SpinWheel extends StatefulWidget {
   final List<dynamic> betsSheets;
@@ -107,7 +111,6 @@ class _SpinWheelState extends State<SpinWheel> {
       if (temp['bet'] == "ODD" && (value % 2 != 0)) {
         int add = temp['amount'];
         balance += add * 2;
-        print(temp['bet']);
         betsHit.add("Your bet on " + temp['bet'] + " : +" + add.toString());
       }
       if (temp['bet'] == "Red" && (value % 2 != 0 && value <= 18 ||
@@ -124,6 +127,40 @@ class _SpinWheelState extends State<SpinWheel> {
       }
     }
     totalAmountGame = balance;
+    onlineAcc?updateBalanceByEmail(email, totalAmountGame):
+    updateBalanceByEmailOffline(email, totalAmountGame);
+  }
+
+  Future<void> updateBalanceByEmailOffline(String email, int newBalance) async {
+    final databasesPath = await getDatabasesPath();
+    final path = p.join(databasesPath, 'users1.db');
+
+    final db = await openDatabase(
+      path,
+      version: 1,
+    );
+
+    await db.update(
+      'users',
+      {'balance': newBalance},
+      where: 'email = ?',
+      whereArgs: [email],
+    );
+    await db.close();
+  }
+
+  Future<void> updateBalanceByEmail(String email, int newBalance) async {
+    // Get a reference to the Firestore database
+    final firestore = await FirebaseFirestore.instance;
+
+    final querySnapshot = await firestore.collection('users').where('email', isEqualTo: email).get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      final documentId = querySnapshot.docs.first.id;
+      await firestore.collection('users').doc(documentId).update({'balance': newBalance});
+    } else {
+      print('User with email $email not found');
+    }
   }
 
 

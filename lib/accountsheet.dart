@@ -184,19 +184,19 @@ class _UserListViewState extends State<UserListView> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) =>
-                            GameTime(1000, false, user['email'])),
+                            GameTime(user['balance'], false, user['email'])),
                       );
                     },
-                    child: Text(user['email'].split('@')[0]),
+                    child: Text(user['email'].split('@')[0].toUpperCase(),style: TextStyle(fontSize: 14),),
                   ),
                 ],
               ),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('Balance: ${user['balance']}'),
+                  Text('Balance: ${user['balance']}',style: TextStyle(color: Colors.grey),),
                   IconButton(
-                    icon: const Icon(Icons.delete),
+                    icon: const Icon(Icons.delete,color: Colors.grey,),
                     onPressed: () => _deleteUser(user['email']),
                   ),
                 ],

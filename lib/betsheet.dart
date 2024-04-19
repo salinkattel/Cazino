@@ -11,10 +11,17 @@ class Betsheet extends StatefulWidget {
 class _BetsheetState extends State<Betsheet> {
   @override
   void initState() {
-    if (totalAmountGame < 0) {
+    if (totalAmountGame == -50|| totalAmountGame == -100) {
       bets.removeLast();
       totalAmountGame = 0;
     }
+    if (totalAmountGame == -150) {
+      bets.removeLast();
+      bets.removeLast();
+      totalAmountGame = 0;
+    }
+
+
   }
 
   @override

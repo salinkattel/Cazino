@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:regamba/game.dart';
-
+import 'package:regamba/main.dart';
 class DisplayResults extends StatefulWidget {
   final int number;
   final List<dynamic> betsSheets;
   final List<String> process;
 
-  const DisplayResults(this.number, this.betsSheets, this.process, {super.key});
+  const DisplayResults(this.number, this.betsSheets, this.process);
 
   @override
-  _DisplayResults createState() => _DisplayResults();
+  _DisplayResultsState createState() => _DisplayResultsState();
 }
 
-class _DisplayResults extends State<DisplayResults> {
+class _DisplayResultsState extends State<DisplayResults> {
   List<dynamic> betsSheetsRes = [];
   int value = 0;
 
@@ -50,29 +50,67 @@ class _DisplayResults extends State<DisplayResults> {
           ),
           child: Column(
             children: [
-              Center(
-                child: Text(totalAmountGame.toString()),
-              ),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: widget.process.length,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      title: Text(widget.process[index]),
+              if (widget.process.isEmpty)
+                Expanded(
+                  child: Center(
+                    child: Text(
+                      "You lost all bets",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                )
+              else
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: widget.process.length,
+                    itemBuilder: (context, index) {
+                      return ListTile(
+                        title: Text(
+                          widget.process[index],
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              if (totalAmountGame == 0)
+                Expanded(
+                  child: Center(
+                    child: Text(
+                      "Game Over",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                )
+              else
+                Center(
+                  child: Text(
+                    "Funds Remaning: "+totalAmountGame.toString(),
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              if (totalAmountGame != 0)
+                ElevatedButton(
+                  onPressed: () {
+                    bets = [];
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              GameTime(totalAmountGame, onlineAcc, email)),
                     );
                   },
+                  child: const Text("Play Again"),
                 ),
-              ),
               ElevatedButton(
                 onPressed: () {
                   bets = [];
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) =>
-                        GameTime(totalAmountGame, onlineAcc, email)),
+                    MaterialPageRoute(builder: (context) => MyApp()),
                   );
                 },
-                child: const Text("Play Again"),
+                child: const Text("Main Menu"),
               )
             ],
           ),

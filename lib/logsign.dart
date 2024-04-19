@@ -52,15 +52,14 @@ class _LoginPageState extends State<LoginPage> {
             balance<50?
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: Text("Acc lacks funds"),
+              child: Text("Account lacks funds"),
             ):
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: Text("Anoter acc"),
-            ),
-            TextButton(
+              child: Text("ReLogin"),
+            ), TextButton(
               onPressed: (){
-    Navigator.push(context,MaterialPageRoute(builder: (context) => GameTime(1000,true,useremail)),);
+              Navigator.push(context,MaterialPageRoute(builder: (context) => GameTime(balance,true,useremail)),);
               },
               child: Text("Go to Table"),
             ),
@@ -229,9 +228,6 @@ class _SignUpPageState extends State<SignUpPage> {
     );
   }
 
-
-
-
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
@@ -248,16 +244,11 @@ class _SignUpPageState extends State<SignUpPage> {
             'users',
             {'email': _email, 'password': _password,'balance':1000,},
           );
-          // If you want to navigate to another page after signup,
-          // you can do so here.
-          // For example:
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const UserListView()),
           );
         } else {
-          // Handle case where user already exists
-          // You might want to display an error message dialog
           showDialog(
             context: context,
             builder: (BuildContext context) {
