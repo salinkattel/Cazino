@@ -69,71 +69,90 @@ class _SpinWheelState extends State<SpinWheel> {
     3,
     26
   ];
+  static const Set<int> redPositions = {1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36};
+  static const Set<int> blackPositions = {2, 4, 6, 8, 10, 11, 13, 15, 17, 20, 22, 24, 26, 28, 29, 31, 33, 35};
 
   void checkBets(value) {
-    for (int i = 0; i < bets.length; i++) {
-      final temp = bets[i];
-      if (temp['bet'] == value.toString()) {
-        int add = temp['amount'];
-        balance += add * 36;
-        betsHit.add("Your bet on " + temp['bet'] + " : +" + add.toString());
-      }
-      if (temp['bet'] == "1st 12" && (value <= 12 && value != 0)) {
-        int add = temp['amount'];
-        balance += add * 3;
-        betsHit.add("Your bet on " + temp['bet'] + " : +" + add.toString());
-      }
-      if (temp['bet'] == "2nd 12" && (value >= 13 && value <= 24)) {
-        int add = temp['amount'];
-        balance += add * 3;
-        betsHit.add("Your bet on " + temp['bet'] + " : +" + add.toString());
-      }
-      if (temp['bet'] == "3rd 12" && (value >= 25 && value <= 36)) {
-        int add = temp['amount'];
-        balance += add * 3;
-        betsHit.add("Your bet on " + temp['bet'] + " : +" + add.toString());
-      }
-      if (temp['bet'] == "1 to 18" && (value >= 1 && value <= 18)) {
-        int add = temp['amount'];
-        balance += add * 2;
-        betsHit.add("Your bet on " + temp['bet'] + " : +" + add.toString());
-      }
-      if (temp['bet'] == "19 to 36" && (value >= 19 && value <= 36)) {
-        int add = temp['amount'];
-        balance += add * 2;
-        betsHit.add("Your bet on " + temp['bet'] + " : +" + add.toString());
-      }
-      if (temp['bet'] == "Even" && (value % 2 == 0 && value != 0)) {
-        int add = temp['amount'];
-        balance += add * 2;
-        betsHit.add("Your bet on " + temp['bet'] + " : +" + add.toString());
-      }
-      if (temp['bet'] == "ODD" && (value % 2 != 0)) {
-        int add = temp['amount'];
-        balance += add * 2;
-        betsHit.add("Your bet on " + temp['bet'] + " : +" + add.toString());
-      }
-      if (temp['bet'] == "Red" && (value % 2 != 0 && value <= 18 ||
-          value % 2 == 0 && value >= 19 && value <= 36)) {
-        int add = temp['amount'];
-        balance += add * 2;
-        betsHit.add("Your bet on " + temp['bet'] + " : +" + add.toString());
-      }
-      if (temp['bet'] == "Black" && (value % 2 == 0 && value <= 18 ||
-          value % 2 != 0 && value >= 19 && value <= 36)) {
-        int add = temp['amount'];
-        balance += add * 2;
-        betsHit.add("Your bet on " + temp['bet'] + " : +" + add.toString());
-      }
-    }
-    totalAmountGame = balance;
-    onlineAcc?updateBalanceByEmail(email, totalAmountGame):
-    updateBalanceByEmailOffline(email, totalAmountGame);
+  for (int i = 0; i < bets.length; i++) {
+  final temp = bets[i];
+
+  if (temp['bet'] == value.toString()) {
+  int add = temp['amount']*36;
+  balance += add ;
+  betsHit.add("Your bet on " + temp['bet'] + " hit you won : +" + add.toString());
   }
+  if (temp['bet'] == "1st 12" && (value <= 12 && value != 0)) {
+  int add = temp['amount']*3;
+  balance += add;
+  betsHit.add("Your bet on " + temp['bet'] + " hit you won: +" + add.toString());
+  }
+  if (temp['bet'] == "2nd 12" && (value >= 13 && value <= 24)) {
+  int add = temp['amount']*3;
+  balance += add;
+  betsHit.add("Your bet on " + temp['bet'] + " hit you won: +" + add.toString());
+  }
+  if (temp['bet'] == "3rd 12" && (value >= 25 && value <= 36)) {
+  int add = temp['amount']*3;
+  balance += add;
+  betsHit.add("Your bet on " + temp['bet'] + " hit you won: +" + add.toString());
+  }
+  if (temp['bet'] == "1 to 18" && (value >= 1 && value <= 18)) {
+  int add = temp['amount']*2;
+  balance += add;
+  betsHit.add("Your bet on " + temp['bet'] + " hit you won: +" + add.toString());
+  }
+  if (temp['bet'] == "19 to 36" && (value >= 19 && value <= 36)) {
+  int add = temp['amount']*2;
+  balance += add;
+  betsHit.add("Your bet on " + temp['bet'] + " hit you won: +" + add.toString());
+  }
+  if (temp['bet'] == "EVEN" && (value % 2 == 0 && value != 0)) {
+  int add = temp['amount']*2;
+  balance += add;
+  betsHit.add("Your bet on " + temp['bet'] + " hit you won: +" + add.toString());
+  }
+  if (temp['bet'] == "ODD" && (value % 2 != 0)) {
+  int add = temp['amount']*2;
+  balance += add;
+  betsHit.add("Your bet on " + temp['bet'] + " hit you won: +" + add.toString());
+  }
+  if (temp['bet'] == 'RED' && redPositions.contains(value)) {
+    int add = temp['amount'] * 2;
+    balance += add;
+    betsHit.add("Your bet on ${temp['bet']} hit! You won: +$add");
+  }
+
+  if (temp['bet'] == 'BLACK' && blackPositions.contains(value)) {
+    int add = temp['amount'] * 2;
+    balance += add;
+    betsHit.add("Your bet on ${temp['bet']} hit! You won: +$add");
+  }
+
+  if (temp['bet'] == "1st Col" && ((value - 1) % 3 == 0)) {
+    int add = temp['amount'] * 2;
+    balance += add;
+    betsHit.add("Your bet on " + temp['bet'] + " : +" + add.toString());
+  }
+  if (temp['bet'] == "2nd Col" && ((value - 2) % 3 == 0)) {
+    int add = temp['amount'] * 2;
+    balance += add;
+    betsHit.add("Your bet on " + temp['bet'] + " : +" + add.toString());
+  }
+  if (temp['bet'] == "3rd Col" && ((value - 3) % 3 == 0)) {
+    int add = temp['amount'] * 2;
+    balance += add;
+    betsHit.add("Your bet on " + temp['bet'] + " : +" + add.toString());
+    
+  }
+  }
+  totalAmountGame = balance;
+  onlineAcc ? updateBalanceByEmail(email, totalAmountGame) : updateBalanceByEmailOffline(email, totalAmountGame);
+  }
+
 
   Future<void> updateBalanceByEmailOffline(String email, int newBalance) async {
     final databasesPath = await getDatabasesPath();
-    final path = p.join(databasesPath, 'users1.db');
+    final path = p.join(databasesPath, 'users3.db');
 
     final db = await openDatabase(
       path,

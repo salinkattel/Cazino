@@ -37,7 +37,7 @@ class _GameTimeState extends State<GameTime>{
               Center(
                 child: Container(
                   width: 120,
-                  height: 50,
+                  height: 25,
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.white, width: 1),
                   ),
@@ -94,21 +94,29 @@ class _DraggableImageState extends State<DraggableImage> {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Draggable<Map>(
-          data: {'imagepath': widget.asset.toString(), 'amount': widget.value},
-          feedback: Image.asset(widget.asset, width: 50),
-          onDragStarted: checkVisibility,
-          childWhenDragging: Container(),
-          onDragEnd: (details) {
-            if (totalAmountGame >= widget.value) {
-            } else {
-              checkVisibility();
-            }
-            checkVisibility();
-          },
-          child: isVisible
-              ? Image.asset(widget.asset, width: 50)
-              : Container(),
+        Column(
+          children: [
+            Draggable<Map>(
+              data: {'imagepath': widget.asset.toString(), 'amount': widget.value},
+              feedback: Image.asset(widget.asset, width: 50),
+              onDragStarted: checkVisibility,
+              childWhenDragging: Container(),
+              onDragEnd: (details) {
+                if (totalAmountGame >= widget.value) {
+                } else {
+                  checkVisibility();
+                }
+                checkVisibility();
+              },
+              child: isVisible
+                  ? Image.asset(widget.asset, width: 50)
+                  : Container(),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(widget.value.toString(),style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),),
+            )
+          ],
         ),
         OutlinedButton(
           style: OutlinedButton.styleFrom(
@@ -214,10 +222,11 @@ class _MyDragTargetState extends State<RouletteNumberBox> {
   }
 }
 class ColorBet extends StatefulWidget {
+  final String color;
   final Color name;
   final double size;
 
-  const ColorBet(this.name, this.size, {super.key});
+  const ColorBet(this.color,this.name, this.size, {super.key});
   @override
   _ColorBet createState() => _ColorBet();
 }
@@ -240,7 +249,7 @@ class _ColorBet extends State<ColorBet> {
                 alignment: Alignment.center,
                 children: [
                   Text(
-                    "RED",style: TextStyle(color:widget.name,fontFamily: 'Bold',fontSize: 30*widget.size),
+                    widget.color,style: TextStyle(color:widget.name,fontFamily: 'Bold',fontSize: 30*widget.size),
                   ), imagePath == null
                       ? Container() : Image.asset(imagePath!,width: 30,),
                 ],
@@ -253,7 +262,7 @@ class _ColorBet extends State<ColorBet> {
         setState(() {
           imagePath = details.data['imagepath'];
         });
-        PlaceBets(widget.name.toString(), details.data['amount']);
+        PlaceBets(widget.color.toString(), details.data['amount']);
       },
     );
   }
@@ -330,7 +339,7 @@ class _ColumnBet extends State<ColumnBet> {
                 alignment: Alignment.center,
                 children: [
                   Text(
-                    widget.name.toString(),style: TextStyle(color: Colors.white,fontFamily: 'Bold',fontSize: 30*widget.size),
+                    widget.name.toString(),style: TextStyle(color: Colors.white,fontFamily: 'Bold',fontSize: 18*widget.size),
                   ), imagePath == null
                       ? Container() : Image.asset(imagePath!,width: 30,),
                 ],
@@ -364,8 +373,8 @@ class RouletteTableDesign extends StatelessWidget {
                     children: [
                       SectionBet("1 to 18", 0.5),
                       SectionBet("EVEN", 0.5),
-                      ColorBet(Colors.red, 0.5),
-                      ColorBet(Colors.black, 0.5),
+                      ColorBet("RED",Colors.red, 0.5),
+                      ColorBet("BLACK",Colors.black, 0.5),
                       SectionBet("ODD", 0.5),
                       SectionBet("19 to 36", 0.5),
                       SizedBox(height: 50,)
@@ -479,9 +488,9 @@ class RouletteTableDesign extends StatelessWidget {
 
                   Row(
                       children: [
-                        ColumnBet("2:1", 1),
-                        ColumnBet("2:1", 1),
-                        ColumnBet("2:1", 1),
+                        ColumnBet("1st Col", 1),
+                        ColumnBet("2nd Col", 1),
+                        ColumnBet("3rd Col", 1),
                       ]
                   ),
                 ],

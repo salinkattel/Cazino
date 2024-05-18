@@ -16,26 +16,19 @@ class _LoginPageState extends State<LoginPage> {
   String _email = '';
   String _password = '';
   late Database _database;
+  bool _isLoading = false;
 
 
   Future<void> loginUser(String email, BuildContext context) async {
+    setState(() {
+      _isLoading = true;
+    });
     try {
-      // Check if the document exists
       final docSnapshot = await FirebaseFirestore.instance.collection('users').doc(email).get();
       if (!docSnapshot.exists) {
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: Text('Error'),
-            content: Text('Invalid email.'),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text('OK'),
-              ),
-            ],
-          ),
-        );
+        setState(() {
+          _isLoading = false;
+        });
         return;
       }
 
@@ -49,25 +42,35 @@ class _LoginPageState extends State<LoginPage> {
           title: Text('Login Sucessful'),
           content: Text('Your balance is $balance.'),
           actions: <Widget>[
-            balance<50?
-            TextButton(
+            balance < 50
+                ? TextButton(
               onPressed: () => Navigator.of(context).pop(),
               child: Text("Account lacks funds"),
-            ):
-            TextButton(
+            )
+                : TextButton(
               onPressed: () => Navigator.of(context).pop(),
               child: Text("ReLogin"),
-            ), TextButton(
-              onPressed: (){
-              Navigator.push(context,MaterialPageRoute(builder: (context) => GameTime(balance,true,useremail)),);
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => GameTime(balance, true, useremail)),
+                );
               },
               child: Text("Go to Table"),
             ),
           ],
         ),
       );
+
+      setState(() {
+        _isLoading = false;
+      });
     } catch (e) {
-      // Show error message
+      setState(() {
+        _isLoading = false;
+      });
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -85,6 +88,7 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -95,9 +99,8 @@ class _LoginPageState extends State<LoginPage> {
             opacity: 0.25,
             child: Image.asset(
               "assets/cazino.png",
-              // fit: BoxFit.cover,
               height: 800,
-              width:500,
+              width: 500,
             ),
           ),
           Padding(
@@ -111,7 +114,7 @@ class _LoginPageState extends State<LoginPage> {
                     "assets/txtlogo.png",
                     fit: BoxFit.contain,
                   ),
-                  Text("LOGIN",style: TextStyle(color: Colors.deepPurpleAccent,fontSize:20),),
+                  Text("LOGIN", style: TextStyle(color: Colors.deepPurpleAccent, fontSize: 20)),
                   const SizedBox(height: 20),
                   TextFormField(
                     style: const TextStyle(color: Colors.white),
@@ -167,7 +170,7 @@ class _LoginPageState extends State<LoginPage> {
                                 MaterialPageRoute(builder: (context) => const UserListView()),
                               );
                             },
-                            child: const Text("Offline Login",style: TextStyle(color: Colors.white),),
+                            child: const Text("Offline Login", style: TextStyle(color: Colors.white)),
                           ),
                         ],
                       ),
@@ -178,7 +181,7 @@ class _LoginPageState extends State<LoginPage> {
                             loginUser(_email, context);
                           }
                         },
-                        child: Text('Login',style: TextStyle(color: Colors.white)),
+                        child: Text('Login', style: TextStyle(color: Colors.white)),
                       ),
                     ],
                   ),
@@ -186,10 +189,24 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
           ),
+          // Loading indicator
+          if (_isLoading)
+            Center(
+              child: Container(
+                padding: EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border.all(color: Colors.purple),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: CircularProgressIndicator(),
+              ),
+            ),
         ],
       ),
     );
   }
+
 }
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -214,14 +231,14 @@ class _SignUpPageState extends State<SignUpPage> {
 
   Future<void> _initDatabase() async {
     final databasesPath = await getDatabasesPath();
-    final path = p.join(await getDatabasesPath(), 'users1.db');
+    final path = p.join(await getDatabasesPath(), 'users3.db');
 
     _database = await openDatabase(
       path,
       version: 1,
       onCreate: (db, version) {
         db.execute(
-          'CREATE TABLE users(id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT, password TEXT,balance INTEGER)',
+          'CREATE TABLE users(id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT, password TEXT,balance INTEGER,isOnline INTEGER)',
         );
         print("DATAENTERS!!!!!!!");
       },
@@ -233,7 +250,14 @@ class _SignUpPageState extends State<SignUpPage> {
       _formKey.currentState!.save();
 
       try {
-        final existingUser = await _database.query(
+        // Ensure the database is initialized
+        final Database _database = await _initializeDatabase();
+
+        // Ensure the users table exists
+        await _createUsersTableIfNotExists(_database);
+
+        // Query the database to check if the email exists
+        final List<Map<String, dynamic>> existingUser = await _database.query(
           'users',
           where: 'email = ?',
           whereArgs: [_email],
@@ -242,13 +266,15 @@ class _SignUpPageState extends State<SignUpPage> {
         if (existingUser.isEmpty) {
           await _database.insert(
             'users',
-            {'email': _email, 'password': _password,'balance':1000,},
+            {'email': _email, 'password': _password, 'balance': 1000, 'isOnline': 0},
           );
+          // Navigate to the UserListView
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const UserListView()),
           );
         } else {
+          // Show an error dialog if the user already exists
           showDialog(
             context: context,
             builder: (BuildContext context) {
@@ -272,6 +298,29 @@ class _SignUpPageState extends State<SignUpPage> {
       }
     }
   }
+
+  Future<Database> _initializeDatabase() async {
+    return await openDatabase(
+      'users3.db',
+      version: 1,
+      onCreate: (db, version) async {
+        await _createUsersTableIfNotExists(db);
+      },
+    );
+  }
+
+  Future<void> _createUsersTableIfNotExists(Database db) async {
+    await db.execute('''
+    CREATE TABLE IF NOT EXISTS users (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      email TEXT UNIQUE,
+      password TEXT,
+      balance INTEGER,
+      isOnline INTEGER
+    )
+  ''');
+  }
+
 
   @override
   Widget build(BuildContext context) {
